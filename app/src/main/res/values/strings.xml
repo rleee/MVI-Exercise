@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MVI Exercise - LiveData</string>
+    <string name="user_group_title">user</string>
 </resources>
