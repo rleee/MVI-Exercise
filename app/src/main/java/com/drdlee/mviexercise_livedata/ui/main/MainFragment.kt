@@ -14,6 +14,7 @@ class MainFragment : Fragment() {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: FragmentMainBinding
+    private lateinit var blogListAdapter: BlogListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,7 +29,6 @@ class MainFragment : Fragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        println("DEBUG: onCreateView -> $viewModel")
         setHasOptionsMenu(true)
         return binding.root
     }
@@ -49,12 +49,15 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeObserver()
+        blogListAdapter = BlogListAdapter()
+        binding.blogList.adapter = blogListAdapter
     }
 
     /**
      * Initialization
      *
      * dataState observation -> set it to viewState
+     * viewState observation -> submit to RecyclerView Adapter
      */
     private fun initializeObserver() {
         viewModel.dataState.observe(viewLifecycleOwner, Observer {
@@ -63,6 +66,11 @@ class MainFragment : Fragment() {
             }
             it.blogPost?.let { blogList ->
                 viewModel.setBlogList(blogList)
+            }
+        })
+        viewModel.viewState.observe(viewLifecycleOwner, Observer {
+            it.blogPost?.let { blogList ->
+                blogListAdapter.submitList(blogList)
             }
         })
     }
