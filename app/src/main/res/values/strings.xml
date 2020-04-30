@@ -2,4 +2,6 @@
     <string name="app_name">MVI Exercise - LiveData</string>
     <string name="user_group_title">user</string>
     <string name="imageDesc_profile_picture">profile picture</string>
+    <string name="menu_get_user">get user</string>
+    <string name="menu_get_blogs">get blogs</string>
 </resources>
