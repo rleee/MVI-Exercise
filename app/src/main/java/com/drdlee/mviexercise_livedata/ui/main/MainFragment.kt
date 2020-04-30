@@ -3,10 +3,12 @@ package com.drdlee.mviexercise_livedata.ui.main
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.drdlee.mviexercise_livedata.R
 import com.drdlee.mviexercise_livedata.databinding.FragmentMainBinding
 import com.drdlee.mviexercise_livedata.ui.main.state.MainStateEvent
+import java.lang.Exception
 
 class MainFragment : Fragment() {
 
@@ -18,11 +20,15 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        viewModel = activity?.run {
+            ViewModelProvider(this).get(MainViewModel::class.java)
+        } ?: throw Exception("Invalid Activity")
+
         binding = FragmentMainBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
+        println("DEBUG: onCreateView -> $viewModel")
         setHasOptionsMenu(true)
         return binding.root
     }
@@ -38,5 +44,26 @@ class MainFragment : Fragment() {
             R.id.action_get_blogs -> viewModel.setEventState(MainStateEvent.GetBlogPostEvent())
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initializeObserver()
+    }
+
+    /**
+     * Initialization
+     *
+     * dataState observation -> set it to viewState
+     */
+    private fun initializeObserver() {
+        viewModel.dataState.observe(viewLifecycleOwner, Observer {
+            it.user?.let { user ->
+                viewModel.setUser(user)
+            }
+            it.blogPost?.let { blogList ->
+                viewModel.setBlogList(blogList)
+            }
+        })
     }
 }

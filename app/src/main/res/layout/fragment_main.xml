@@ -40,21 +40,21 @@
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     android:contentDescription="@string/imageDesc_profile_picture"
-                    app:setImage="@{viewModel.dataState.user.image}"
+                    app:setImage="@{viewModel.viewState.user.image}"
                     tools:src="@drawable/ic_launcher_background" />
 
                 <TextView
                     android:id="@+id/username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@{viewModel.dataState.user.username}"
+                    android:text="@{viewModel.viewState.user.username}"
                     tools:text="Username" />
 
                 <TextView
                     android:id="@+id/email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@{viewModel.dataState.user.email}"
+                    android:text="@{viewModel.viewState.user.email}"
                     tools:text="Email" />
 
             </LinearLayout>
