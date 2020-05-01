@@ -39,6 +39,8 @@ class MainActivity : AppCompatActivity(), DataStateListener {
 
             // set Toast message if new message appear
             it.message?.let { event: Event<String> ->
+
+                // if configuration change wont assign the same value to viewState
                 event.getContentIfNotHandled()?.let { message: String ->
                     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
                 }

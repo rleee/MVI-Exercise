@@ -74,6 +74,8 @@ class MainFragment : Fragment() {
     private fun initializeObserver() {
         viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
             dataState.data?.let { event: Event<MainViewState> ->
+
+                // if configuration change wont assign the same value to viewState
                 event.getContentIfNotHandled()?.let { it: MainViewState ->
                     it.user?.let { user ->
                         viewModel.setUser(user)
