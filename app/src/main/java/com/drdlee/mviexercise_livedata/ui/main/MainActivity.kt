@@ -8,6 +8,7 @@ import androidx.databinding.DataBindingUtil
 import com.drdlee.mviexercise_livedata.R
 import com.drdlee.mviexercise_livedata.databinding.ActivityMainBinding
 import com.drdlee.mviexercise_livedata.util.DataState
+import com.drdlee.mviexercise_livedata.util.Event
 
 class MainActivity : AppCompatActivity(), DataStateListener {
 
@@ -28,14 +29,19 @@ class MainActivity : AppCompatActivity(), DataStateListener {
 
     override fun onDataStateChange(dataState: DataState<*>?) {
         dataState?.let {
+
+            // set loading progressbar on or off
             if (it.loading) {
                 binding.progressBar.visibility = View.VISIBLE
             } else {
                 binding.progressBar.visibility = View.GONE
             }
 
-            if (it.message != null) {
-                Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
+            // set Toast message if new message appear
+            it.message?.let { event: Event<String> ->
+                event.getContentIfNotHandled()?.let { message: String ->
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

@@ -1,15 +1,15 @@
 package com.drdlee.mviexercise_livedata.util
 
 data class DataState<T>(
-    var data: T? = null,
-    var message: String? = null,
+    var data: Event<T>? = null,
+    var message: Event<String>? = null,
     var loading: Boolean = false
 ) {
     companion object {
         fun <T> onError(message: String): DataState<T> {
             return DataState(
                 data = null,
-                message = message,
+                message = Event.createMessage(message),
                 loading = false
             )
         }
@@ -24,8 +24,8 @@ data class DataState<T>(
 
         fun <T> onData(message: String? = null, data: T? = null): DataState<T> {
             return DataState(
-                data = data,
-                message = message,
+                data = Event.createData(data),
+                message = Event.createMessage(message),
                 loading = false
             )
         }

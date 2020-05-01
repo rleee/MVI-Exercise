@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.drdlee.mviexercise_livedata.R
 import com.drdlee.mviexercise_livedata.databinding.FragmentMainBinding
 import com.drdlee.mviexercise_livedata.ui.main.state.MainStateEvent
+import com.drdlee.mviexercise_livedata.ui.main.state.MainViewState
+import com.drdlee.mviexercise_livedata.util.Event
 import java.lang.Exception
 
 class MainFragment : Fragment() {
@@ -71,12 +73,14 @@ class MainFragment : Fragment() {
      */
     private fun initializeObserver() {
         viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
-            dataState.data?.let {
-                it.user?.let { user ->
-                    viewModel.setUser(user)
-                }
-                it.blogPost?.let { blogList ->
-                    viewModel.setBlogList(blogList)
+            dataState.data?.let { event: Event<MainViewState> ->
+                event.getContentIfNotHandled()?.let { it: MainViewState ->
+                    it.user?.let { user ->
+                        viewModel.setUser(user)
+                    }
+                    it.blogPost?.let { blogList ->
+                        viewModel.setBlogList(blogList)
+                    }
                 }
             }
             dataStateListener?.onDataStateChange(dataState)
