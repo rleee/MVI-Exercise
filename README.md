@@ -2,7 +2,7 @@
 MVI example from codingwithmitch
 
 Most of the stuff are using generics, and the data flow will be:
-1. [**Retrofit api**](retrofit-api) response as:
+1. [**Retrofit api**](#retrofit-api) response as:
    - `GenericApiResponse<T>` will contains:
      - `ApiSuccessResponse<T>(val body: T)`
      - `ApiEmptyResponse<T>`
@@ -12,7 +12,7 @@ Most of the stuff are using generics, and the data flow will be:
      > 🐣 `<T>` here would be response from Api which is `User` or `List<Blog>`
      
 2. [**Repository**](#repository) <br>
-repository will use [`NetworkBoundResource`](#NetworkBoundResource) to pass response to `DataState<MainViewState>`
+repository will use [`NetworkBoundResource`](#NetworkBoundResource) to pass response to [`DataState<MainViewState>`](#datastate)
    - `NetworkBoundResource<T, ViewState>` <br> 
      - `abstract fun createCall(): LiveData<GenericApiResponse<ResponseObject>>` <br>
      - `abstract fun handleApiSuccessResponse(response: ApiSuccessResponse<ResponseObject>)`
@@ -140,5 +140,103 @@ class MainViewModel : ViewModel() {
 }
 ```
 
+##### DataState
+```kotlin
+/**
+* Event here is just a wrapper to not to return the same content if configuration change (device rotation)
+*/
+data class DataState<T>(
+    var data: Event<T>? = null,
+    var message: Event<String>? = null,
+    var loading: Boolean = false
+) {
+    companion object {
+        fun <T> onError(message: String): DataState<T> {
+            return DataState(
+                data = null,
+                message = Event.createMessage(message),
+                loading = false
+            )
+        }
+
+        fun <T> onLoading(isLoading: Boolean): DataState<T> {
+            return DataState(
+                data = null,
+                message = null,
+                loading = isLoading
+            )
+        }
+
+        fun <T> onData(message: String? = null, data: T? = null): DataState<T> {
+            return DataState(
+                data = Event.createData(data),
+                message = Event.createMessage(message),
+                loading = false
+            )
+        }
+    }
+}
+```
+
+##### MainViewState
+```kotlin
+data class MainViewState(
+    var blogPost: List<Blog>? = null,
+    var user: User? = null
+)
+```
+
+##### Event
+```kotlin
+/**
+ * Used as a wrapper for data,
+ * so if data that is old wont be returned twice
+ */
+class Event<T>(private val content: T) {
+
+    var hasBeenHandled = false
+        private set // Allow external read but not write
+
+    /**
+     * Returns the content and prevents its use again.
+     */
+    fun getContentIfNotHandled(): T? {
+        return if (hasBeenHandled) {
+            null
+        } else {
+            hasBeenHandled = true
+            content
+        }
+    }
+
+    /**
+     * Returns the content, even if it's already been handled.
+     */
+    fun peekContent(): T = content
+
+    override fun toString(): String {
+        return "Event(content=$content,hasBeenHandled=$hasBeenHandled)"
+    }
+
+    companion object {
+
+        // we don't want an event if there's no data
+        fun <T> createData(data: T?): Event<T>? {
+            data?.let {
+                return Event(it)
+            }
+            return null
+        }
+
+        // we don't want an event if there is no message
+        fun createMessage(message: String?): Event<String>? {
+            message?.let {
+                return Event(message)
+            }
+            return null
+        }
+    }
+}
+```
 
 
