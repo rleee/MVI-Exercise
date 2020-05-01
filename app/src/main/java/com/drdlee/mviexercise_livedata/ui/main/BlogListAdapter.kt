@@ -24,6 +24,7 @@ class BlogListAdapter() :
 
         fun bind(item: Blog) {
             binding.blogItem = item
+            binding.executePendingBindings()
         }
 
         companion object {
