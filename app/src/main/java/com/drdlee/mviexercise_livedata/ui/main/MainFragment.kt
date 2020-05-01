@@ -15,6 +15,7 @@ class MainFragment : Fragment() {
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: FragmentMainBinding
     private lateinit var blogListAdapter: BlogListAdapter
+    private var dataStateListener: DataStateListener? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,6 +29,8 @@ class MainFragment : Fragment() {
         binding = FragmentMainBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+
+        dataStateListener = context as DataStateListener
 
         setHasOptionsMenu(true)
         return binding.root
@@ -53,10 +56,17 @@ class MainFragment : Fragment() {
         binding.blogList.adapter = blogListAdapter
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        dataStateListener = null
+    }
+
     /**
      * Initialization
      *
      * dataState observation -> set it to viewState
+     *                       -> set listener for progressBar or Toast
+     *
      * viewState observation -> submit to RecyclerView Adapter
      */
     private fun initializeObserver() {
@@ -69,6 +79,7 @@ class MainFragment : Fragment() {
                     viewModel.setBlogList(blogList)
                 }
             }
+            dataStateListener?.onDataStateChange(dataState)
         })
         viewModel.viewState.observe(viewLifecycleOwner, Observer {
             it.blogPost?.let { blogList ->

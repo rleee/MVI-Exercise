@@ -1,13 +1,13 @@
 package com.drdlee.mviexercise_livedata.repository
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import com.drdlee.mviexercise_livedata.models.Blog
+import com.drdlee.mviexercise_livedata.models.User
 import com.drdlee.mviexercise_livedata.network.RetrofitBuilder
 import com.drdlee.mviexercise_livedata.ui.main.state.MainViewState
-import com.drdlee.mviexercise_livedata.util.ApiEmptyResponse
-import com.drdlee.mviexercise_livedata.util.ApiErrorResponse
 import com.drdlee.mviexercise_livedata.util.ApiSuccessResponse
 import com.drdlee.mviexercise_livedata.util.DataState
+import com.drdlee.mviexercise_livedata.util.GenericApiResponse
 
 object Repository {
 
@@ -19,18 +19,15 @@ object Repository {
      * and return value based on which API response
      */
     fun getUser(userId: String): LiveData<DataState<MainViewState>> {
-        return Transformations.switchMap(RetrofitBuilder.openApi.fetchUser(userId)) { apiResponse ->
-            object : LiveData<DataState<MainViewState>>() {
-                override fun onActive() {
-                    super.onActive()
-                    value = when (apiResponse) {
-                        is ApiSuccessResponse -> DataState.onData(data = MainViewState(user = apiResponse.body))
-                        is ApiEmptyResponse -> DataState.onError(message = "HTTP 204. Empty Response")
-                        is ApiErrorResponse -> DataState.onError(message = apiResponse.errorMessage)
-                    }
-                }
+        return object : NetworkBoundResource<User, MainViewState>() {
+            override fun createCall(): LiveData<GenericApiResponse<User>> {
+                return RetrofitBuilder.openApi.fetchUser(userId)
             }
-        }
+
+            override fun handleApiSuccessResponse(response: ApiSuccessResponse<User>) {
+                result.value = DataState.onData(data = MainViewState(user = response.body))
+            }
+        }.asLiveData()
     }
 
     /**
@@ -41,17 +38,14 @@ object Repository {
      * and return value based on which API response
      */
     fun getBlogList(): LiveData<DataState<MainViewState>> {
-        return Transformations.switchMap(RetrofitBuilder.openApi.fetchBlog()) { apiResponse ->
-            object : LiveData<DataState<MainViewState>>() {
-                override fun onActive() {
-                    super.onActive()
-                    value = when (apiResponse) {
-                        is ApiSuccessResponse -> DataState.onData(data = MainViewState(blogPost = apiResponse.body))
-                        is ApiEmptyResponse -> DataState.onError(message = "HTTP 204. Empty Response")
-                        is ApiErrorResponse -> DataState.onError(message = apiResponse.errorMessage)
-                    }
-                }
+        return object : NetworkBoundResource<List<Blog>, MainViewState>() {
+            override fun createCall(): LiveData<GenericApiResponse<List<Blog>>> {
+                return RetrofitBuilder.openApi.fetchBlog()
             }
-        }
+
+            override fun handleApiSuccessResponse(response: ApiSuccessResponse<List<Blog>>) {
+                result.value = DataState.onData(data = MainViewState(blogPost = response.body))
+            }
+        }.asLiveData()
     }
 }
