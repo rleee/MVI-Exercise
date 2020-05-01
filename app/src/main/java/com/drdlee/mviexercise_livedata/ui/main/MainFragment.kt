@@ -60,12 +60,14 @@ class MainFragment : Fragment() {
      * viewState observation -> submit to RecyclerView Adapter
      */
     private fun initializeObserver() {
-        viewModel.dataState.observe(viewLifecycleOwner, Observer {
-            it.user?.let { user ->
-                viewModel.setUser(user)
-            }
-            it.blogPost?.let { blogList ->
-                viewModel.setBlogList(blogList)
+        viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
+            dataState.data?.let {
+                it.user?.let { user ->
+                    viewModel.setUser(user)
+                }
+                it.blogPost?.let { blogList ->
+                    viewModel.setBlogList(blogList)
+                }
             }
         })
         viewModel.viewState.observe(viewLifecycleOwner, Observer {

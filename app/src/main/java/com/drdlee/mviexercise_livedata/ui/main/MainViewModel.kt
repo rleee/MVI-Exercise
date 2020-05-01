@@ -6,6 +6,7 @@ import com.drdlee.mviexercise_livedata.models.User
 import com.drdlee.mviexercise_livedata.repository.Repository
 import com.drdlee.mviexercise_livedata.ui.main.state.MainStateEvent
 import com.drdlee.mviexercise_livedata.ui.main.state.MainViewState
+import com.drdlee.mviexercise_livedata.util.DataState
 
 class MainViewModel : ViewModel() {
 
@@ -14,12 +15,12 @@ class MainViewModel : ViewModel() {
     val viewState: LiveData<MainViewState>
         get() = _viewState
 
-    val dataState: LiveData<MainViewState> =
+    val dataState: LiveData<DataState<MainViewState>> =
         Transformations.switchMap(_eventState) { stateEvent ->
             when (stateEvent) {
                 is MainStateEvent.GetUserEvent -> Repository.getUser(stateEvent.userId)
                 is MainStateEvent.GetBlogPostEvent -> Repository.getBlogList()
-                is MainStateEvent.None -> object : LiveData<MainViewState>() {}
+                is MainStateEvent.None -> object : LiveData<DataState<MainViewState>>() {}
             }
         }
 
